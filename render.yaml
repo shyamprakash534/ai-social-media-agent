@@ -19,15 +19,10 @@ services:
         generateValue: true
       - key: ENCRYPTION_SECRET
         generateValue: true
+      - key: USE_POSTGRES_CHECKPOINTER
+        value: "false"
       - key: DATABASE_URL
-        fromDatabase:
-          name: ai-social-media-agent-db
-          property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: keyvalue
-          name: ai-social-media-agent-redis
-          property: connectionString
+        value: sqlite:////var/data/social_agent.db
       - key: OPENAI_API_KEY
         sync: false
       - key: OPENAI_MODEL
@@ -38,6 +33,8 @@ services:
         sync: false
       - key: LINKEDIN_REDIRECT_URI
         value: https://ai-social-media-agent-api.onrender.com/auth/linkedin/callback
+      - key: LINKEDIN_VERSION
+        value: "202606"
       - key: SLACK_BOT_TOKEN
         sync: false
       - key: SLACK_CHANNEL_ID
@@ -46,31 +43,7 @@ services:
         sync: false
       - key: SLACK_ALLOWED_USER_IDS
         sync: false
-      - key: USE_POSTGRES_CHECKPOINTER
-        value: "true"
-
-  - type: keyvalue
-    name: ai-social-media-agent-redis
-    plan: free
-    region: singapore
-    maxmemoryPolicy: noeviction
-    ipAllowList: []
-
-  - type: web
-    name: ai-social-media-agent-ui
-    runtime: docker
-    dockerfilePath: ./frontend/Dockerfile
-    dockerContext: ./frontend
-    plan: free
-    region: singapore
-    autoDeploy: true
-    envVars:
-      - key: NEXT_PUBLIC_API_URL
-        value: https://ai-social-media-agent-api.onrender.com
-
-databases:
-  - name: ai-social-media-agent-db
-    plan: free
-    region: singapore
-    databaseName: socialagent
-    user: socialagent
+    disk:
+      name: ai-social-media-agent-data
+      mountPath: /var/data
+      sizeGB: 1
